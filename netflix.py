@@ -1,5 +1,4 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import requests
+from telegram.ext import Updater, CommandHandler, MessageHandler
 
 # Function to start the bot
 def start(update, context):
@@ -8,22 +7,26 @@ def start(update, context):
 # Function to check Netflix credentials
 def check_credentials(email, password):
     # Dummy function for now, replace with real API or checker logic.
-    # Normally you'd check the credentials via an API or database.
-    # For now, returning True/False
     if email == "valid_email@example.com" and password == "validpassword":
         return True
     else:
         return False
 
+# Handling messages manually without Filters
 def handle_message(update, context):
     user_input = update.message.text
-    email, password = user_input.split()  # Assumes email and password are space-separated
-
-    # Validate credentials
-    if check_credentials(email, password):
-        update.message.reply_text("✅ Correct credentials!")
-    else:
-        update.message.reply_text("❌ Wrong credentials. Try again!")
+    try:
+        # Assuming email and password are space-separated
+        email, password = user_input.split()
+        
+        # Validate credentials
+        if check_credentials(email, password):
+            update.message.reply_text("✅ Correct credentials!")
+        else:
+            update.message.reply_text("❌ Wrong credentials. Try again!")
+    except ValueError:
+        # If input format is incorrect
+        update.message.reply_text("❌ Please enter your email and password in the format: email password")
 
 # Main function to set up the bot
 def main():
@@ -33,9 +36,9 @@ def main():
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # Register handlers
+    # Register handlers without Filters
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    dispatcher.add_handler(MessageHandler(None, handle_message))  # Without Filters
 
     # Start the bot
     updater.start_polling()
